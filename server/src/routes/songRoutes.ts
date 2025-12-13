@@ -8,7 +8,7 @@ import {
 
 const router = Router();
 
-// TODO: prefix all paths with '/api/songs' in index.ts
+// all paths are prefixed with "/api/songs"
 
 router.route("/").get(getSongs).post(createSong);
 router.route("/:id").put(updateSong).delete(deleteSong);

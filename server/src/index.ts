@@ -2,7 +2,8 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./db";
-// TODO: import routes here
+
+import songRoutes from "./routes/songRoutes";
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Music manager server running");
 });
 
-// TODO: add routes to server here
+app.use("/api/songs", songRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
