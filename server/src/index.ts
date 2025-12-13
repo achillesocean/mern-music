@@ -4,6 +4,7 @@ import cors from "cors";
 import connectDB from "./db";
 
 import songRoutes from "./routes/songRoutes";
+import statsRoutes from "./routes/statsRoutes";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/songs", songRoutes);
+app.use("/api/stats", statsRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
