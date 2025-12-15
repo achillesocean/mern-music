@@ -2,22 +2,22 @@
 
 import React from "react";
 import { Box } from "../../components/Base/Box";
-import { type IStats } from "../../types/songTypes";
+// import { type IStats } from "../../types/songTypes";
 
-interface StatsListProps {
+interface StatsListProps<T extends object> {
   title: string;
   // Generic type for a list of stat items (e.g., genre/count, artist/albumCount)
-  data: Array<any>;
-  keyField: keyof IStats["songsPerGenre"]; // e.g., 'genre'
-  valueField: keyof IStats["songsPerGenre"]; // e.g., 'count'
+  data: T[];
+  keyField: keyof T;
+  valueField: keyof T;
 }
 
-const StatsList: React.FC<StatsListProps> = ({
+const StatsList = <T extends object>({
   title,
   data,
   keyField,
   valueField,
-}) => {
+}: StatsListProps<T>) => {
   if (!data || data.length === 0) return null;
 
   return (
@@ -40,8 +40,9 @@ const StatsList: React.FC<StatsListProps> = ({
           py={1}
           fontSize={1}
         >
-          <Box color="textMuted">{item[keyField]}</Box>
-          <Box fontWeight="bold">{item[valueField]}</Box>
+          {/* The keyField and valueField props are now guaranteed by TS to be keys of 'item' */}
+          <Box color="textMuted">{item[keyField] as React.ReactNode}</Box>
+          <Box fontWeight="bold">{item[valueField] as React.ReactNode}</Box>
         </Box>
       ))}
     </Box>
