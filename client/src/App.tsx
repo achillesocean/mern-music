@@ -1,35 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// client/src/App.tsx (Main Content Area)
 
-function App() {
-  const [count, setCount] = useState(0)
+import React from "react";
+import { AppLayout } from "./components/Layout/AppLayout";
+import { Box } from "./components/Base/Box";
+import StatsPanel from "./features/stats/StatsPanel";
+import SongListContainer from "./features/songs/SongListContainer"; // To be created
+import SongForm from "./features/songs/SongForm"; // To be created
+import { Card } from "./components/Base/Card";
 
+import GlobalStyles from "./theme/GlobalStyles";
+import { ThemeProvider } from "@emotion/react";
+import theme from "./theme/theme";
+
+const App: React.FC = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <ThemeProvider theme={theme}>
+      <GlobalStyles />
+      <AppLayout>
+        <Box as="h1" fontSize={5} color="primary" mb={5}>
+          🎶 MERN Music Manager
+        </Box>
 
-export default App
+        {/* Layout: Grid/Flex for Stats and Main Content */}
+        <Box
+          display="grid"
+          gridTemplateColumns={["1fr", "1fr", "3fr 1fr"]}
+          gridGap={5}
+        >
+          {/* 1. Main Content Area: Form + List */}
+          <Box>
+            <Card p={4} mb={5}>
+              <SongForm />
+            </Card>
+
+            <SongListContainer />
+          </Box>
+
+          {/* 2. Statistics Panel */}
+          <StatsPanel />
+        </Box>
+      </AppLayout>
+    </ThemeProvider>
+  );
+};
+
+export default App;
