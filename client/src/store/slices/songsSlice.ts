@@ -25,28 +25,51 @@ const songsSlice = createSlice({
       state.error = action.payload;
     },
 
+    createSongRequest: (
+      state,
+      action: PayloadAction<Omit<ISong, "_id" | "createdAt" | "updatedAt">>
+    ) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    updateSongRequest: (state, action: PayloadAction<ISong>) => {
+      state.isLoading = true;
+      state.error = null;
+    },
+    deleteSongRequest: (state, action: PayloadAction<string>) => {
+      // Payload is the song ID
+      state.isLoading = true;
+      state.error = null;
+    },
+
     createSongSuccess: (state, action: PayloadAction<ISong>) => {
       state.list.unshift(action.payload);
       state.isLoading = false;
       state.error = null;
     },
     deleteSongSuccess: (state, action: PayloadAction<string>) => {
-      state.list = state.list.filter((song) => song._id !== action.payload);
+      // Payload is the song ID
       state.isLoading = false;
-      state.error = null;
+      // Filter out the song by ID. This creates a new array (Immutability in Redux)
+      state.list = state.list.filter((song) => song._id !== action.payload); // State updated without page reload
     },
     updateSongSuccess: (state, action: PayloadAction<ISong>) => {
-      state.list = state.list.map((song) =>
-        song._id === action.payload._id ? action.payload : song
-      );
       state.isLoading = false;
-      state.error = null;
+      const index = state.list.findIndex(
+        (song) => song._id === action.payload._id
+      );
+      if (index !== -1) {
+        state.list[index] = action.payload; // State updated without page reload
+      }
     },
   },
 });
 
 export const {
   fetchSongsRequest,
+  createSongRequest, // New export (for UI dispatch)
+  updateSongRequest,
+  deleteSongRequest,
   fetchSongsSuccess,
   fetchSongsFailure,
   createSongSuccess,

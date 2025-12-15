@@ -39,3 +39,32 @@ export async function createSongAPI(
 
   return response.json() as Promise<ISong>;
 }
+
+export async function updateSongAPI(
+  id: string,
+  songData: ISong
+): Promise<ISong> {
+  const response = await fetch(`${BASE_URL}/songs/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(songData),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update song");
+  }
+
+  return response.json() as Promise<ISong>;
+}
+
+export async function deleteSongAPI(id: string): Promise<void> {
+  const response = await fetch(`${BASE_URL}/songs/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to delete song");
+  }
+}
