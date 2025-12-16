@@ -21,7 +21,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/songs", songRoutes);
-app.use("/api/stats", statsRoutes);
+app.use("/api/statistics", statsRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

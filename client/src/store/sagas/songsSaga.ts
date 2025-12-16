@@ -25,7 +25,7 @@ import type {
 function* fetchSongsSaga() {
   try {
     const songs: Song[] = yield call(songsApi.getAll);
-
+    console.log("songs fetched by the saga", songs);
     // put() - Dispatches an action to the Redux store
     // This is like calling dispatch(fetchSongsSuccess(songs))
     yield put(fetchSongsSuccess(songs));

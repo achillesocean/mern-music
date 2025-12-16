@@ -5,8 +5,8 @@ import type {
   Statistics,
 } from "../types/songTypes";
 
-const API_BASE_URL = "/api";
-const USE_MOCK = true;
+const API_BASE_URL = "http://localhost:5000/api";
+const USE_MOCK = false;
 const MOCK_DELAY = 300;
 
 let mockSongs: Song[] = [
@@ -66,7 +66,7 @@ export const songsApi = {
     const response = await fetch(`${API_BASE_URL}/songs`);
     if (!response.ok) throw new Error("Failed to fetch songs");
     const data = await response.json();
-    return data.data;
+    return data;
   },
 
   /**
@@ -83,7 +83,7 @@ export const songsApi = {
     const response = await fetch(`${API_BASE_URL}/songs/${id}`);
     if (!response.ok) throw new Error("Song not found");
     const data = await response.json();
-    return data.data;
+    return data;
   },
 
   /**
@@ -108,7 +108,7 @@ export const songsApi = {
     });
     if (!response.ok) throw new Error("Failed to create song");
     const data = await response.json();
-    return data.data;
+    return data;
   },
 
   /**
@@ -135,7 +135,7 @@ export const songsApi = {
     });
     if (!response.ok) throw new Error("Failed to update song");
     const data = await response.json();
-    return data.data;
+    return data;
   },
 
   /**
@@ -163,12 +163,6 @@ export const songsApi = {
  * =============================================================================
  */
 export const statisticsApi = {
-  /**
-   * GET /api/statistics - Fetch all statistics
-   *
-   * This calculates aggregate statistics from the songs data.
-   * In a real app, this would be a dedicated endpoint on the backend.
-   */
   getAll: async (): Promise<Statistics> => {
     if (USE_MOCK) {
       await delay(MOCK_DELAY);
@@ -226,7 +220,59 @@ export const statisticsApi = {
 
     const response = await fetch(`${API_BASE_URL}/statistics`);
     if (!response.ok) throw new Error("Failed to fetch statistics");
-    const data = await response.json();
-    return data.data;
+    const rawData = await response.json();
+
+    const normalized: Statistics = {
+      totalSongs: rawData.overall?.totalSongs || 0,
+      totalArtists: rawData.overall?.totalArtists || 0,
+      totalAlbums: rawData.overall?.totalAlbums || 0,
+      totalGenres: rawData.overall?.totalGenres || 0,
+      songsByGenre:
+        rawData.songsPerGenre?.reduce(
+          (
+            acc: Record<string, number>,
+            item: { genre: string; count: number }
+          ) => {
+            acc[item.genre] = item.count;
+            return acc;
+          },
+          {}
+        ) || {},
+      songsByArtist:
+        rawData.songsAlbumsPerArtist?.reduce(
+          (
+            acc: Record<string, number>,
+            item: { artist: string; songCount: number }
+          ) => {
+            acc[item.artist] = item.songCount;
+            return acc;
+          },
+          {}
+        ) || {},
+      albumsByArtist:
+        rawData.songsAlbumsPerArtist?.reduce(
+          (
+            acc: Record<string, number>,
+            item: { artist: string; albumCount: number }
+          ) => {
+            acc[item.artist] = item.albumCount;
+            return acc;
+          },
+          {}
+        ) || {},
+      songsByAlbum:
+        rawData.songsPerAlbum?.reduce(
+          (
+            acc: Record<string, number>,
+            item: { album: string; songCount: number }
+          ) => {
+            acc[item.album] = item.songCount;
+            return acc;
+          },
+          {}
+        ) || {},
+    };
+
+    return normalized;
   },
 };

@@ -9,6 +9,30 @@ export const getSongs = async (req: Request, res: Response) => {
     res.status(200).json(songs);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch songs" });
+    console.log("Failed to fetch songs");
+  }
+};
+
+export const getSong = async (req: Request, res: Response) => {
+  try {
+    const song = await Song.findById(req.params.id);
+
+    if (!song) {
+      return res.status(404).json({
+        error: "Song not found",
+      });
+    }
+
+    res.status(200).json(song);
+  } catch (error) {
+    if ((error as { kind: string }).kind === "ObjectId") {
+      return res.status(404).json({
+        error: "Song not found",
+      });
+    }
+    res.status(500).json({
+      error: "Server error",
+    });
   }
 };
 

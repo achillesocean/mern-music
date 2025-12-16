@@ -35,6 +35,9 @@ const songsSlice = createSlice({
 
     // PayloadAction<Song[]> means this action carries a payload of type Song[]
     fetchSongsSuccess: (state, action: PayloadAction<Song[]>) => {
+      // if (action.payload) {
+      //   state.songs = action.payload;
+      // }
       state.songs = action.payload;
       state.loading = false;
       state.error = null;
