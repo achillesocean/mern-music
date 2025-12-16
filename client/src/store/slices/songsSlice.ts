@@ -1,79 +1,126 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { type ISong, type SongsState } from "../../types/songTypes";
+import type {
+  Song,
+  CreateSongPayload,
+  UpdateSongPayload,
+} from "../../types/songTypes";
+
+interface SongsState {
+  songs: Song[];
+  loading: boolean;
+  error: string | null;
+}
 
 const initialState: SongsState = {
-  list: [],
-  isLoading: false,
+  songs: [],
+  loading: false,
   error: null,
 };
+
+/**
+ * createSlice() creates:
+ * - a reducer function, through songsSlice.reducer
+ * - action creators for each reducer, through songsSlice.actions
+ * - action type strings, eg, 'songs/fetchSongsRequest'
+ */
 
 const songsSlice = createSlice({
   name: "songs",
   initialState,
   reducers: {
     fetchSongsRequest: (state) => {
-      state.isLoading = true;
+      state.loading = true;
       state.error = null;
     },
-    fetchSongsSuccess: (state, action: PayloadAction<ISong[]>) => {
-      state.list = action.payload;
-      state.isLoading = false;
+
+    // PayloadAction<Song[]> means this action carries a payload of type Song[]
+    fetchSongsSuccess: (state, action: PayloadAction<Song[]>) => {
+      state.songs = action.payload;
+      state.loading = false;
       state.error = null;
     },
+
+    // carries an error message as payload
     fetchSongsFailure: (state, action: PayloadAction<string>) => {
-      state.isLoading = false;
+      state.loading = false;
       state.error = action.payload;
     },
 
-    createSongRequest: (
-      state,
-      action: PayloadAction<Omit<ISong, "_id" | "createdAt" | "updatedAt">>
-    ) => {
-      state.isLoading = true;
+    createSongRequest: (state, _action: PayloadAction<CreateSongPayload>) => {
+      state.loading = true;
       state.error = null;
     },
-    updateSongRequest: (state, action: PayloadAction<ISong>) => {
-      state.isLoading = true;
+    createSongSuccess: (state, action: PayloadAction<Song>) => {
+      state.songs.unshift(action.payload);
+      state.loading = false;
       state.error = null;
     },
-    deleteSongRequest: (state, action: PayloadAction<string>) => {
-      // Payload is the song ID
-      state.isLoading = true;
+    createSongFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    updateSongRequest: (state, _action: PayloadAction<UpdateSongPayload>) => {
+      state.loading = true;
       state.error = null;
     },
 
-    createSongSuccess: (state, action: PayloadAction<ISong>) => {
-      state.list.unshift(action.payload);
-      state.isLoading = false;
-      state.error = null;
-    },
-    deleteSongSuccess: (state, action: PayloadAction<string>) => {
-      // Payload is the song ID
-      state.isLoading = false;
-      // Filter out the song by ID. This creates a new array (Immutability in Redux)
-      state.list = state.list.filter((song) => song._id !== action.payload); // State updated without page reload
-    },
-    updateSongSuccess: (state, action: PayloadAction<ISong>) => {
-      state.isLoading = false;
-      const index = state.list.findIndex(
+    updateSongSuccess: (state, action: PayloadAction<Song>) => {
+      state.loading = false;
+      const index = state.songs.findIndex(
         (song) => song._id === action.payload._id
       );
       if (index !== -1) {
-        state.list[index] = action.payload; // State updated without page reload
+        state.songs[index] = action.payload; // State updated without page reload
       }
+      state.error = null;
+    },
+
+    updateSongFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    // payload is just the _id of the song to delete
+    deleteSongRequest: (state, _action: PayloadAction<string>) => {
+      state.loading = true;
+      state.error = null;
+    },
+
+    deleteSongSuccess: (state, action: PayloadAction<string>) => {
+      // Payload is the song ID
+      state.loading = false;
+      state.error = null;
+      // Filter out the song by ID. This creates a new array (Immutability in Redux)
+      state.songs = state.songs.filter((song) => song._id !== action.payload); // State updated without page reload
+    },
+
+    deleteSongFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    clearError: (state) => {
+      state.error = null;
     },
   },
 });
 
 export const {
   fetchSongsRequest,
-  createSongRequest, // New export (for UI dispatch)
-  updateSongRequest,
-  deleteSongRequest,
   fetchSongsSuccess,
   fetchSongsFailure,
+  createSongRequest,
   createSongSuccess,
-  deleteSongSuccess,
+  createSongFailure,
+  updateSongRequest,
   updateSongSuccess,
+  updateSongFailure,
+  deleteSongRequest,
+  deleteSongSuccess,
+  deleteSongFailure,
+  clearError,
 } = songsSlice.actions;
+
+// Export the reducer to be used in the store
 export default songsSlice.reducer;

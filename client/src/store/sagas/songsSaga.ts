@@ -1,104 +1,93 @@
 import { call, put, takeLatest } from "redux-saga/effects";
-import {
-  fetchSongsAPI,
-  createSongAPI,
-  updateSongAPI,
-  deleteSongAPI,
-} from "../../api/songsApi";
-
+import type { PayloadAction } from "@reduxjs/toolkit";
 import {
   fetchSongsRequest,
-  createSongRequest,
-  updateSongRequest,
-  updateSongSuccess,
-  deleteSongRequest,
-  deleteSongSuccess,
   fetchSongsSuccess,
   fetchSongsFailure,
+  createSongRequest,
   createSongSuccess,
+  createSongFailure,
+  updateSongRequest,
+  updateSongSuccess,
+  updateSongFailure,
+  deleteSongRequest,
+  deleteSongSuccess,
+  deleteSongFailure,
 } from "../slices/songsSlice";
+import { fetchStatisticsRequest } from "../slices/statsSlice";
+import { songsApi } from "../../services/api";
+import type {
+  Song,
+  CreateSongPayload,
+  UpdateSongPayload,
+} from "../../types/songTypes";
 
-import { fetchStatsRequest } from "../slices/statsSlice";
-import { type ISong } from "../../types/songTypes";
-import type { PayloadAction } from "@reduxjs/toolkit";
-
-type FetchSongsAction = ReturnType<typeof fetchSongsRequest>;
-
-// worker saga: executes the api call and dispatches success/failure actions
-function* fetchSongsWorker(
-  action: FetchSongsAction
-): Generator<any, void, any> {
+function* fetchSongsSaga() {
   try {
-    const songs: ISong[] = yield call(fetchSongsAPI);
+    const songs: Song[] = yield call(songsApi.getAll);
 
-    // put is a saga effect that dispatches an action to the Redux store -- to the reducers.
+    // put() - Dispatches an action to the Redux store
+    // This is like calling dispatch(fetchSongsSuccess(songs))
     yield put(fetchSongsSuccess(songs));
   } catch (error) {
-    yield put(
-      fetchSongsFailure(
-        error instanceof Error ? error.message : "Unknown error"
-      )
-    );
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch songs";
+    yield put(fetchSongsFailure(errorMessage));
   }
 }
 
-// worker saga that handles song creation
-function* createSongWorker(
-  action: PayloadAction<Omit<ISong, "_id" | "createdAt" | "updatedAt">>
-): Generator<any, void, any> {
+function* createSongSaga(action: PayloadAction<CreateSongPayload>) {
   try {
-    const newSong: ISong = yield call(createSongAPI, action.payload);
+    const newSong: Song = yield call(songsApi.create, action.payload);
 
+    // Dispatch success with the created song (now has _id from server)
     yield put(createSongSuccess(newSong));
-    // re-fetch stats to reflect the new total number of songs/genres/artists
-    yield put(fetchStatsRequest());
+    yield put(fetchStatisticsRequest());
   } catch (error) {
-    // yield put(createSongFailure(error...));
-    console.error("Failed to create song:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to create song";
+    yield put(createSongFailure(errorMessage));
   }
 }
 
-function* updateSongWorker(
-  action: PayloadAction<ISong>
-): Generator<any, void, any> {
-  const songToUpdate = action.payload;
+function* updateSongSaga(action: PayloadAction<UpdateSongPayload>) {
   try {
-    const updatedSong: ISong = yield call(
-      updateSongAPI,
-      songToUpdate._id,
-      songToUpdate
+    const updatedSong: Song = yield call(
+      songsApi.update,
+      action.payload._id,
+      action.payload
     );
-
     yield put(updateSongSuccess(updatedSong));
-    yield put(fetchStatsRequest());
+
+    // Refresh statistics after update
+    yield put(fetchStatisticsRequest());
   } catch (error) {
-    // TODO: yield put(operationFailure(error...));
-    console.error("Failed to update song:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to update song";
+    yield put(updateSongFailure(errorMessage));
   }
 }
 
-function* deleteSongWorker(
-  action: PayloadAction<string>
-): Generator<any, void, any> {
-  const songId = action.payload;
+function* deleteSongSaga(action: PayloadAction<string>) {
   try {
-    yield call(deleteSongAPI, songId); // API call returns void on success
+    // The payload is just the song ID
+    yield call(songsApi.delete, action.payload);
+    yield put(deleteSongSuccess(action.payload));
 
-    yield put(deleteSongSuccess(songId)); // Pass the ID to the reducer to remove it
-    yield put(fetchStatsRequest());
+    yield put(fetchStatisticsRequest());
   } catch (error) {
-    // yield put(operationFailure(error...));
-    console.error("Failed to delete song:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to delete song";
+    yield put(deleteSongFailure(errorMessage));
   }
 }
 
-// watcher saga
-export function* songsSaga() {
-  // takeLatest will cancel any previous fetchSongsWorker if a new fetchSongsRequest is dispatched
-  yield takeLatest(fetchSongsRequest.type, fetchSongsWorker);
-  yield takeLatest(createSongRequest.type, createSongWorker);
+export function* watchSongsSaga() {
+  yield takeLatest(fetchSongsRequest.type, fetchSongsSaga);
 
-  yield takeLatest(createSongRequest.type, createSongWorker);
-  yield takeLatest(updateSongRequest.type, updateSongWorker);
-  yield takeLatest(deleteSongRequest.type, deleteSongWorker);
+  yield takeLatest(createSongRequest.type, createSongSaga);
+
+  yield takeLatest(updateSongRequest.type, updateSongSaga);
+
+  yield takeLatest(deleteSongRequest.type, deleteSongSaga);
 }

@@ -1,26 +1,23 @@
 import { call, put, takeLatest } from "redux-saga/effects";
-import { fetchStatsAPI } from "../../api/songsApi";
 import {
-  fetchStatsRequest,
-  fetchStatsFailure,
-  fetchStatsSuccess,
+  fetchStatisticsRequest,
+  fetchStatisticsSuccess,
+  fetchStatisticsFailure,
 } from "../slices/statsSlice";
-import type { IStats } from "../../types/songTypes";
+import { statisticsApi } from "../../services/api";
+import type { Statistics } from "../../types/songTypes";
 
-function* fetchStatsWorker(): Generator<any, void, any> {
+function* fetchStatisticsSaga() {
   try {
-    const stats: IStats = yield call(fetchStatsAPI);
-
-    yield put(fetchStatsSuccess(stats));
+    const statistics: Statistics = yield call(statisticsApi.getAll);
+    yield put(fetchStatisticsSuccess(statistics));
   } catch (error) {
-    yield put(
-      fetchStatsFailure(
-        error instanceof Error ? error.message : "Unknown error"
-      )
-    );
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch statistics";
+    yield put(fetchStatisticsFailure(errorMessage));
   }
 }
 
-export function* statsSaga() {
-  yield takeLatest(fetchStatsRequest.type, fetchStatsWorker);
+export function* watchStatisticsSaga() {
+  yield takeLatest(fetchStatisticsRequest.type, fetchStatisticsSaga);
 }

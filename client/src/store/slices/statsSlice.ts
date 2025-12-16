@@ -1,38 +1,44 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { type IStats } from "../../types/songTypes";
+import type { Statistics } from "../../types/songTypes";
 
-interface StatsState {
-  data: IStats | null;
-  isLoading: boolean;
+interface StatisticsState {
+  data: Statistics | null;
+  loading: boolean;
   error: string | null;
 }
 
-const initialState: StatsState = {
+const initialState: StatisticsState = {
   data: null,
-  isLoading: false,
+  loading: false,
   error: null,
 };
 
-const statsSlice = createSlice({
-  name: "stats",
+const statisticsSlice = createSlice({
+  name: "statistics",
   initialState,
+
   reducers: {
-    fetchStatsRequest: (state) => {
-      state.isLoading = true;
+    fetchStatisticsRequest: (state) => {
+      state.loading = true;
       state.error = null;
     },
-    fetchStatsSuccess: (state, action: PayloadAction<IStats>) => {
+    fetchStatisticsSuccess: (state, action: PayloadAction<Statistics>) => {
       state.data = action.payload;
-      state.isLoading = false;
+      state.loading = false;
       state.error = null;
     },
-    fetchStatsFailure: (state, action: PayloadAction<string>) => {
-      state.isLoading = false;
+
+    fetchStatisticsFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
       state.error = action.payload;
     },
   },
 });
 
-export const { fetchStatsRequest, fetchStatsSuccess, fetchStatsFailure } =
-  statsSlice.actions;
-export default statsSlice.reducer;
+export const {
+  fetchStatisticsRequest,
+  fetchStatisticsSuccess,
+  fetchStatisticsFailure,
+} = statisticsSlice.actions;
+
+export default statisticsSlice.reducer;
