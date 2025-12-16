@@ -19,12 +19,12 @@ const colors = {
   warning: "#FF9800",
 };
 
-const fonstSizes = ["12px", "14px", "16px", "20px", "24px", "32px", "48px"];
+const fontSizes = ["12px", "14px", "16px", "20px", "24px", "32px", "48px"];
 
 const theme = {
   space,
   colors,
-  fonstSizes,
+  fontSizes,
 };
 
 export type Theme = typeof theme;

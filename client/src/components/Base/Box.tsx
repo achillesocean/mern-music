@@ -4,13 +4,25 @@ import {
   color,
   layout,
   flexbox,
+  typography,
+  border,
+  grid,
   type SpaceProps,
   type ColorProps,
   type LayoutProps,
   type FlexboxProps,
+  type TypographyProps,
+  type BorderProps,
+  type GridProps,
 } from "styled-system";
 
-type BoxProps = SpaceProps & ColorProps & LayoutProps & FlexboxProps;
+type BoxProps = SpaceProps &
+  ColorProps &
+  LayoutProps &
+  FlexboxProps &
+  TypographyProps &
+  BorderProps &
+  GridProps;
 
 export const Box = styled.div<BoxProps>`
   box-sizing: border-box;
@@ -18,4 +30,7 @@ export const Box = styled.div<BoxProps>`
   ${color}
   ${layout}
   ${flexbox}
+  ${typography}
+  ${border}
+  ${grid}
 `;

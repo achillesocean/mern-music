@@ -1,5 +1,25 @@
 import styled from "@emotion/styled";
-import { Box } from "./Box";
+import {
+  space,
+  color,
+  layout,
+  flexbox,
+  typography,
+  border,
+  type SpaceProps,
+  type ColorProps,
+  type LayoutProps,
+  type FlexboxProps,
+  type TypographyProps,
+  type BorderProps,
+} from "styled-system";
+
+type ButtonProps = SpaceProps &
+  ColorProps &
+  LayoutProps &
+  FlexboxProps &
+  TypographyProps &
+  BorderProps;
 
 interface StyledButtonProps {
   variant?: "primary" | "secondary" | "danger";
@@ -29,8 +49,8 @@ const getVariantStyles = (theme: any, variant = "primary") => {
   }
 };
 
-export const Button = styled(Box)<
-  StyledButtonProps & React.ComponentPropsWithoutRef<"button">
+export const Button = styled.button<
+  StyledButtonProps & ButtonProps & React.ComponentPropsWithoutRef<"button">
 >`
   /* Reset HTML defaults and apply base styles */
   display: inline-flex;
@@ -47,5 +67,10 @@ export const Button = styled(Box)<
   ${(props) => getVariantStyles(props.theme, props.variant)}
 
   /* Apply inherited styled-system properties */
-    ${(props) => Box(props)}
+    ${space}
+    ${color}
+    ${layout}
+    ${flexbox}
+    ${typography}
+    ${border}
 `;
