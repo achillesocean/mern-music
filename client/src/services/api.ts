@@ -5,7 +5,7 @@ import type {
   Statistics,
 } from "../types/songTypes";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://mern-music.vercel.app/api";
 const USE_MOCK = false;
 const MOCK_DELAY = 300;
 
